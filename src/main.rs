@@ -11,24 +11,24 @@ fn main() {
     for p in ports {
         println!("{}", p.port_name);
     }
-    let data_sensor1 = thread::spawn(|| {
-        println!("PLACEHOLDER");
-        thread::sleep(Duration::from_millis(100));
+    let load_cell = thread::spawn(|| {
+            println!("PLACEHOLDER");
+            thread::sleep(Duration::from_millis(100));
     });
 
-    let data_sensor2 = thread::spawn(|| {
-        println!("PLACEHOLDER");
-        thread::sleep(Duration::from_millis(100));
+    let thermocouple = thread::spawn(|| {
+            println!("PLACEHOLDER");
+            thread::sleep(Duration::from_millis(100));
     });
 
-    let data_sensor3 = thread::spawn(|| {
-        println!("PLACEHOLDER");
-        thread::sleep(Duration::from_millis(100));
+    let barometer = thread::spawn(|| {
+            println!("PLACEHOLDER");
+            thread::sleep(Duration::from_millis(100));
     });
 
-    data_sensor1.join().unwrap();
-    data_sensor2.join().unwrap();
-    data_sensor3.join().unwrap();
+    load_cell.join().unwrap();
+    thermocouple.join().unwrap();
+    barometer.join().unwrap();
 }
 
 /*

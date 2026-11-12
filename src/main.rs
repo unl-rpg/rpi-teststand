@@ -9,7 +9,7 @@ use std::time::Duration;
  * Reads data from multiple data sensors simultaneously to be written into a JSON file
  */
 fn main() {
-    let file = std::fs::File::create("data.jsonl").expect("create failed");
+    let file = std::fs::File::create("data.json").expect("create failed");
     println!("file created!");
     let mut file1 = file.try_clone().unwrap();
     let mut file2 = file.try_clone().unwrap();
@@ -25,11 +25,14 @@ fn main() {
         .timeout(Duration::from_millis(10))
         .open()
         .expect("Failed to open port");
+
         loop {
             let text = read_port(&mut load_cell_port);
-            let json_output = serde_json::to_string_pretty(&text);
-            file1.write_all(json_output.unwrap().as_bytes()).unwrap();
-            file1.write_all(b"\n").unwrap();
+            if !text.is_empty() {
+                let json_output = serde_json::to_string_pretty(&text);
+                file1.write_all(json_output.unwrap().as_bytes()).unwrap();
+                file1.write_all(b"\n").unwrap();
+            }
 
             thread::sleep(Duration::from_millis(100));
         }
@@ -40,12 +43,15 @@ fn main() {
         .timeout(Duration::from_millis(10))
         .open()
         .expect("Failed to open port");
+
         loop {
             let text = read_port(&mut thermocouple_port);
-            let json_output = serde_json::to_string_pretty(&text);
-            file2.write_all(json_output.unwrap().as_bytes()).unwrap();
-            file2.write_all(b"\n").unwrap();
-
+            if !text.is_empty() {
+                let json_output = serde_json::to_string_pretty(&text);
+                file2.write_all(json_output.unwrap().as_bytes()).unwrap();
+                file2.write_all(b"\n").unwrap();
+            }
+            
             thread::sleep(Duration::from_millis(100));
         }
     });
@@ -58,10 +64,12 @@ fn main() {
 
         loop {
             let text = read_port(&mut barometer_port);
-            let json_output = serde_json::to_string_pretty(&text);
-            file3.write_all(json_output.unwrap().as_bytes()).unwrap();
-            file3.write_all(b"\n").unwrap();
-
+            if !text.is_empty() {
+                let json_output = serde_json::to_string_pretty(&text);
+                file3.write_all(json_output.unwrap().as_bytes()).unwrap();
+                file3.write_all(b"\n").unwrap();
+            }
+            
             thread::sleep(Duration::from_millis(100));
         }
     });

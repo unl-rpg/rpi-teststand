@@ -1,29 +1,62 @@
-use std::thread;
+use std::path::{Path, PathBuf};
+use std::{path, thread};
+use std::io::Read;
+use std::fs::File;
 use std::io::Write;
+use serde::{Serialize, Deserialize};
+use serialport::SerialPort;
 use std::time::Duration;
 
 /*
- * Reads data from multiple data sensors simultaneously to be written into a file
+ * Reads data from multiple data sensors simultaneously to be written into a JSON file
  */
 fn main() {
-    create_file();
+    let mut file = std::fs::File::create("data.txt").expect("create failed");
+    println!("file created!");
+
     let ports = serialport::available_ports().expect("No ports found!");
     for p in ports {
         println!("{}", p.port_name);
     }
-    let load_cell = thread::spawn(|| {
-            println!("PLACEHOLDER");
-            thread::sleep(Duration::from_millis(100));
+
+    let load_cell = thread::spawn(move || {
+        let mut load_cell_port = serialport::new("/dev/ttyUSB0", 115_200) //Note that ports are placeholders
+        .timeout(Duration::from_millis(10))
+        .open()
+        .expect("Failed to open port");
+
+        let text = read_port(&mut load_cell_port);
+
+        let json_output = serde_json::to_string_pretty(&text);
+        file.write_all(json_output.unwrap().as_bytes()).unwrap();
+
+        thread::sleep(Duration::from_millis(100));
     });
 
     let thermocouple = thread::spawn(|| {
-            println!("PLACEHOLDER");
-            thread::sleep(Duration::from_millis(100));
+        let mut thermocouple_port = serialport::new("/dev/ttyUSB0", 115_200) //Note that ports are placeholders
+        .timeout(Duration::from_millis(10))
+        .open()
+        .expect("Failed to open port");
+
+        let mut serial_buf: Vec<u8> = vec![0; 32];
+        thermocouple_port.read(serial_buf.as_mut_slice()).expect("Found no data!");
+
+        println!("PLACEHOLDER");
+        thread::sleep(Duration::from_millis(100));
     });
 
     let barometer = thread::spawn(|| {
-            println!("PLACEHOLDER");
-            thread::sleep(Duration::from_millis(100));
+        let mut barometer_port = serialport::new("/dev/ttyUSB0", 115_200) //Note that ports are placeholders
+        .timeout(Duration::from_millis(10))
+        .open()
+        .expect("Failed to open port");
+
+        let mut serial_buf: Vec<u8> = vec![0; 32];
+        barometer_port.read(serial_buf.as_mut_slice()).expect("Found no data!");
+
+        println!("PLACEHOLDER");
+        thread::sleep(Duration::from_millis(100));
     });
 
     load_cell.join().unwrap();
@@ -32,9 +65,12 @@ fn main() {
 }
 
 /*
- * Creates a file to be written in
+ * Returns a string of our data
+ * Reads a port for data and writes it into our JSON File
  */
-fn create_file() {
-    let mut file = std::fs::File::create("data.txt").expect("create failed");
-    println!("file created!");
+fn read_port(port: &mut Box<dyn SerialPort>) -> String{
+    let mut serial_buf: Vec<u8> = vec![0; 32];
+    let bytes_read = port.read(serial_buf.as_mut_slice()).expect("Found no data!");
+    let text = String::from_utf8_lossy(&serial_buf[..bytes_read]);
+    text.into_owned()
 }

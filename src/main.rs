@@ -9,7 +9,7 @@ use std::time::Duration;
  * Reads data from multiple data sensors simultaneously to be written into a JSON file
  */
 fn main() {
-    let file = std::fs::File::create("data.txt").expect("create failed");
+    let file = std::fs::File::create("data.jsonl").expect("create failed");
     println!("file created!");
     let mut file1 = file.try_clone().unwrap();
     let mut file2 = file.try_clone().unwrap();
@@ -71,9 +71,9 @@ fn main() {
  * Returns a string of our data
  * Reads a port for data and writes it into our JSON File
  */
-fn read_port(port: &mut Box<dyn SerialPort>) -> String{
+fn read_port(port: &mut Box<dyn SerialPort>) -> String {
     let mut serial_buf: Vec<u8> = vec![0; 32];
-    let bytes_read = port.read(serial_buf.as_mut_slice()).expect("Found no data!");
+    let bytes_read = port.read(serial_buf.as_mut_slice()).unwrap_or(0);
     let text = String::from_utf8_lossy(&serial_buf[..bytes_read]);
     text.into_owned()
 }

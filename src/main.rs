@@ -39,8 +39,7 @@ fn main() {
         .open()
         .expect("Failed to open port");
 
-        let mut serial_buf: Vec<u8> = vec![0; 32];
-        thermocouple_port.read(serial_buf.as_mut_slice()).expect("Found no data!");
+        let text = read_port(&mut thermocouple_port);
 
         println!("PLACEHOLDER");
         thread::sleep(Duration::from_millis(100));
@@ -52,8 +51,7 @@ fn main() {
         .open()
         .expect("Failed to open port");
 
-        let mut serial_buf: Vec<u8> = vec![0; 32];
-        barometer_port.read(serial_buf.as_mut_slice()).expect("Found no data!");
+        let text = read_port(&mut barometer_port);
 
         println!("PLACEHOLDER");
         thread::sleep(Duration::from_millis(100));
